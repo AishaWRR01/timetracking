@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/we-are-rosie-design-system-019df9ad-757c-7217-89aa-ac02b342189e/colors_and_type.css">
+  <script src="_ds/we-are-rosie-design-system-019df9ad-757c-7217-89aa-ac02b342189e/_ds_bundle.js"></script>
+  <style>
+    a { color: var(--wrr-ballpoint); }
+    a:hover { color: var(--wrr-ink); }
+    select { appearance: none; -webkit-appearance: none; }
+  </style>
+</helmet>
+
+<div style="min-height:100vh;background:var(--wrr-paper);color:var(--wrr-ink);font-family:var(--font-sans);opacity:{{ pageOpacity }};transition:opacity 160ms ease">
+
+  <div style="background:var(--wrr-ink);color:var(--wrr-paper);display:flex;align-items:center;gap:14px;padding:0 30px;height:40px;overflow-x:auto;overflow-y:hidden">
+    <div style="display:flex;align-items:center;gap:7px;flex:none">
+      <span style="width:6px;height:6px;background:var(--wrr-highlight);display:inline-block"></span>
+      <span style="font-size:9.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;white-space:nowrap">We Are Rosie &middot; CX</span>
+    </div>
+    <div style="width:1px;height:14px;background:#444"></div>
+    <div style="display:flex;align-items:center;gap:6px;position:relative;flex:none">
+      <button onClick="{{ onCalPrev }}" style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid #666;background:transparent;cursor:pointer;color:var(--wrr-paper)">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+      </button>
+      <button onClick="{{ onCalToggle }}" style="border:1px solid #666;background:transparent;color:var(--wrr-paper);padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Reporting &middot; {{ rangeLabel }}</button>
+      <button onClick="{{ onCalNext }}" style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid #666;background:transparent;cursor:pointer;color:var(--wrr-paper)">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+      </button>
+      <sc-if value="{{ calOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:32px;left:0;z-index:70;background:var(--wrr-paper);border:1px solid var(--wrr-ink);box-shadow:4px 4px 0 var(--wrr-ink);padding:16px;width:280px">
+          <div style="font-size:10px;color:var(--wrr-ink-40);margin-bottom:10px">{{ calHint }}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <button onClick="{{ onCalMonthPrev }}" style="border:0;background:transparent;cursor:pointer;padding:4px;color:var(--wrr-ink-60)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+            </button>
+            <div style="font-size:13.5px;font-weight:700;color:var(--wrr-ink)">{{ calYearLabel }}</div>
+            <button onClick="{{ onCalMonthNext }}" style="border:0;background:transparent;cursor:pointer;padding:4px;color:var(--wrr-ink-60)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+            </button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+            <sc-for list="{{ calDow }}" as="d" hint-placeholder-count="7">
+              <div style="text-align:center;font-size:9.5px;color:var(--wrr-ink-40);font-weight:700">{{ d }}</div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
+            <sc-for list="{{ calDays }}" as="c" hint-placeholder-count="42">
+              <div onClick="{{ c.onClick }}" style="text-align:center;padding:7px 0;font-size:11.5px;cursor:pointer;color:{{ c.color }};background:{{ c.bg }};font-weight:{{ c.weight }}">{{ c.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+    <div style="flex:1;min-width:14px"></div>
+    <div style="display:flex;border:1px solid #666;flex:none">
+      <sc-for list="{{ lensTabs }}" as="t" hint-placeholder-count="3">
+        <button onClick="{{ t.onClick }}" style="background:{{ t.bg }};color:{{ t.fg }};border:0;border-right:1px solid #666;padding:5px 11px;font-size:9.5px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;cursor:pointer;font-family:var(--font-sans);white-space:nowrap">{{ t.label }}</button>
+      </sc-for>
+    </div>
+    <button onClick="{{ onSafeToggle }}" style="background:{{ safeBg }};color:{{ safeFg }};border:1px solid {{ safeBorder }};padding:5px 11px;font-size:9.5px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;cursor:pointer;font-family:var(--font-sans);flex:none;white-space:nowrap">{{ safeLabel }}</button>
+    <button onClick="{{ onExport }}" style="background:transparent;color:var(--wrr-paper);border:1px solid #666;padding:5px 11px;font-size:9.5px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;cursor:pointer;font-family:var(--font-sans);flex:none;white-space:nowrap">Export</button>
+  </div>
+
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:30px;padding:22px 30px 18px;flex-wrap:wrap">
+    <div style="display:flex;align-items:flex-start;gap:26px;flex-wrap:wrap;flex:1;min-width:0">
+      <div style="min-width:190px">
+        <div style="font-size:8.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--wrr-ink-40);font-weight:700;margin-bottom:5px">Client</div>
+        <div style="height:40px;display:flex;align-items:flex-end;border-bottom:2px solid var(--wrr-ink)">
+          <select onChange="{{ onClient }}" value="{{ client }}" style="border:0;background:transparent;font-family:var(--font-display);font-weight:700;font-size:28px;letter-spacing:-0.03em;text-transform:uppercase;line-height:1;padding:0 0 4px;cursor:pointer;outline:none;width:100%;color:var(--wrr-ink)">
+            <sc-for list="{{ clientOpts }}" as="co" hint-placeholder-count="4"><option value="{{ co.key }}">{{ co.label }}</option></sc-for>
+          </select>
+        </div>
+      </div>
+      <div style="min-width:210px">
+        <div style="font-size:8.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--wrr-ink-40);font-weight:700;margin-bottom:5px">PO / Order form</div>
+        <div style="height:40px;display:flex;align-items:flex-end;border-bottom:1px solid var(--wrr-ink)">
+          <select onChange="{{ onPo }}" value="{{ po }}" style="border:0;background:transparent;font-size:14px;font-weight:700;line-height:1;padding:0 0 7px;cursor:pointer;outline:none;width:100%;color:var(--wrr-ink)">
+            <sc-for list="{{ poOpts }}" as="p" hint-placeholder-count="4"><option value="{{ p.key }}">{{ p.label }}</option></sc-for>
+          </select>
+        </div>
+        <div style="font-size:10.5px;color:var(--wrr-ink-40);margin-top:4px">{{ poNote }}</div>
+      </div>
+      <div style="min-width:170px">
+        <div style="font-size:8.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--wrr-ink-40);font-weight:700;margin-bottom:5px">Job code</div>
+        <div style="height:40px;display:flex;align-items:flex-end;border-bottom:1px solid var(--wrr-ink)">
+          <select onChange="{{ onJobCode }}" value="{{ jobCode }}" style="border:0;background:transparent;font-size:14px;font-weight:700;line-height:1;padding:0 0 7px;cursor:pointer;outline:none;width:100%;color:var(--wrr-ink)">
+            <sc-for list="{{ jobCodeOpts }}" as="j" hint-placeholder-count="3"><option value="{{ j.key }}">{{ j.label }}</option></sc-for>
+          </select>
+        </div>
+        <div style="font-size:10.5px;color:var(--wrr-ink-40);margin-top:4px">{{ jobCodeNote }}</div>
+      </div>
+      <div style="min-width:220px;flex:1">
+        <div style="font-size:8.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--wrr-ink-40);font-weight:700;margin-bottom:5px">Search</div>
+        <div style="height:40px;display:flex;align-items:flex-end;border-bottom:1px solid var(--wrr-ink)">
+          <input onInput="{{ onSearch }}" value="{{ query }}" placeholder="Search anything" style="border:0;background:transparent;font-size:15px;outline:none;width:100%;font-family:var(--font-sans);color:var(--wrr-ink);line-height:1;padding:0">
+        </div>
+        <div style="font-size:10.5px;color:var(--wrr-ink-40);margin-top:4px">Rosie, PO, or job code</div>
+      </div>
+      <div style="min-width:150px">
+        <div style="font-size:8.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--wrr-ink-40);font-weight:700;margin-bottom:5px">Account owner</div>
+        <div style="height:40px;display:flex;align-items:flex-end;border-bottom:1px solid var(--wrr-ink)">
+          <div style="font-size:15px;font-weight:700;line-height:1">{{ accountOwner }}</div>
+        </div>
+        <div style="font-size:10.5px;color:var(--wrr-ink-40);margin-top:4px">CX lead</div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--wrr-ink-60);margin:0;padding:0 30px 18px">{{ lensCaption }}</p>
+
+  <div style="max-width:1100px;margin:0 auto;padding:8px 24px 96px;opacity:{{ lensOpacity }};transition:opacity 140ms ease">
+
+  <sc-if value="{{ isCx }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:44px;margin-bottom:4px;flex-wrap:wrap;gap:12px">
+      <h2 class="wrr-h3" style="margin:0">The team this period</h2>
+      <div style="display:flex;border:1px solid var(--wrr-ink)">
+        <button onClick="{{ onGranAccount }}" style="background:{{ granAccountBg }};color:{{ granAccountFg }};border:none;padding:7px 14px;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:var(--font-sans)">Account level</button>
+        <button onClick="{{ onGranPlacement }}" style="background:{{ granPlacementBg }};color:{{ granPlacementFg }};border:none;border-left:1px solid var(--wrr-ink);padding:7px 14px;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:var(--font-sans)">Placement level</button>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--wrr-ink-60);margin:0 0 24px">{{ granCaption }}</p>
+    <p style="font-size:11px;color:var(--wrr-ink-40);margin:0 0 20px;display:flex;align-items:center;gap:16px">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:var(--wrr-approved);display:inline-block"></span>On track</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:#E8B900;display:inline-block"></span>Nearing scoped hours</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:var(--wrr-strikeout);display:inline-block"></span>Burning over</span>
+    </p>
+
+    <sc-if value="{{ isAccountLevel }}" hint-placeholder-val="{{ false }}">
+      <div style="overflow-x:auto">
+        <div style="display:grid;grid-template-columns:34px 1.5fr 110px 70px 90px 90px 100px 100px 90px;min-width:850px;border-top:1px solid var(--wrr-ink);border-bottom:1px solid var(--wrr-ink)">
+          <div></div>
+          <div style="padding:10px 10px 10px 0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40)">PO / Order form</div>
+          <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40)">Job codes</div>
+          <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Rosies</div>
+          <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Scoped</div>
+          <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Hours used</div>
+          <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">PO used</div>
+          <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">(Over)/Under</div>
+          <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40)">Status</div>
+        </div>
+        <sc-for list="{{ accountRows }}" as="a" hint-placeholder-count="4">
+          <div onClick="{{ a.onToggle }}" style="display:grid;grid-template-columns:34px 1.5fr 110px 70px 90px 90px 100px 100px 90px;min-width:850px;border-bottom:1px solid var(--wrr-ink-20);cursor:pointer">
+            <div style="padding:14px 0;display:flex;align-items:center" onClick="{{ a.onCheck }}"><input type="checkbox" checked="{{ a.checked }}" readOnly="{{ true }}" style="width:15px;height:15px;cursor:pointer;accent-color:var(--wrr-ink)"></div>
+            <div style="padding:14px 10px 14px 0">
+              <div style="font-weight:700;font-size:14px">{{ a.label }}</div>
+              <div style="font-weight:400;font-size:11.5px;color:var(--wrr-ink-60);margin-top:2px">{{ a.client }}</div>
+            </div>
+            <div style="padding:14px 10px;font-size:12.5px;color:var(--wrr-ink-60)">{{ a.jobCodes }}</div>
+            <div style="padding:14px 10px;text-align:right;font-size:13px">{{ a.rosieCount }}</div>
+            <div style="padding:14px 10px;text-align:right;font-size:13px">{{ a.scoped }}</div>
+            <div style="padding:14px 10px;text-align:right">
+              <div style="font-size:13px">{{ a.used }}</div>
+              <div style="font-size:10px;color:var(--wrr-ink-40);margin-top:1px">this period</div>
+              <div style="height:4px;background:var(--wrr-ink-10);margin-top:5px"><div style="height:100%;width:{{ a.pct }}%;background:{{ a.barColor }}"></div></div>
+            </div>
+            <div style="padding:14px 10px;text-align:right">
+              <div style="font-size:13px">{{ a.poBurnUsed }}</div>
+              <div style="font-size:10px;color:var(--wrr-ink-40);margin-top:1px">this period</div>
+              <div style="height:4px;background:var(--wrr-ink-10);margin-top:5px"><div style="height:100%;width:{{ a.poBurnPct }}%;background:{{ a.poBurnColor }}"></div></div>
+            </div>
+            <div style="padding:14px 10px;text-align:right;font-size:13px">{{ a.remaining }}</div>
+            <div style="padding:14px 10px"><span style="font-size:10.5px;font-weight:700;text-transform:uppercase;padding:3px 8px;border:1px solid {{ a.statusColor }};color:{{ a.statusColor }}">{{ a.status }}</span></div>
+          </div>
+          <sc-if value="{{ a.expanded }}" hint-placeholder-val="{{ false }}">
+            <div style="background:var(--wrr-ink-05);padding:20px 16px;border-bottom:1px solid var(--wrr-ink-20)">
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);margin-bottom:8px">Hours burned down, by Rosie</div>
+              <div style="height:22px;display:flex;background:var(--wrr-ink-10);overflow:hidden">
+                <sc-for list="{{ a.stack }}" as="seg" hint-placeholder-count="3">
+                  <div title="{{ seg.rosie }}" style="height:100%;width:{{ seg.w }}%;background:{{ seg.color }};border-right:1px solid var(--wrr-paper)"></div>
+                </sc-for>
+              </div>
+              <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+                <sc-for list="{{ a.members }}" as="m" hint-placeholder-count="3">
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
+                      <span style="font-weight:700">{{ m.rosie }} <span style="font-weight:400;color:var(--wrr-ink-60)">&middot; {{ m.role }}</span></span>
+                      <span>{{ m.used }} of {{ m.scoped }}</span>
+                    </div>
+                    <div style="height:6px;background:var(--wrr-ink-10)"><div style="height:100%;width:{{ m.pct }}%;background:{{ m.barColor }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--wrr-ink-20)">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);margin-bottom:8px">PO burn \u2014 dollars against contract</div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-family:var(--font-display);font-weight:700;font-size:28px;text-transform:uppercase">{{ a.poBurnPct }}%</span>
+                  <span style="font-size:12.5px;color:var(--wrr-ink-60)">{{ a.poBurnUsed }} consumed of {{ a.poBurnBudget }} on the PO</span>
+                </div>
+                <div style="height:10px;background:var(--wrr-ink-10)"><div style="height:100%;width:{{ a.poBurnPct }}%;background:{{ a.poBurnColor }}"></div></div>
+              </div>
+            </div>
+          </sc-if>
+        </sc-for>
+        <div style="display:grid;grid-template-columns:34px 1.5fr 110px 70px 90px 90px 100px 100px 90px;min-width:850px;background:var(--wrr-ink-05);border-bottom:1px solid var(--wrr-ink)">
+          <div></div>
+          <div style="padding:12px 10px 12px 0;font-weight:700;font-size:13px">Total, {{ accountRows.length }} PO(s)</div>
+          <div></div>
+          <div style="padding:12px 10px;text-align:right;font-weight:700;font-size:13px">{{ accountTotals.rosieCount }}</div>
+          <div style="padding:12px 10px;text-align:right;font-weight:700;font-size:13px">{{ accountTotals.scoped }}</div>
+          <div style="padding:12px 10px;text-align:right;font-weight:700;font-size:13px">{{ accountTotals.used }}</div>
+          <div style="padding:12px 10px;text-align:right;font-weight:700;font-size:13px">{{ accountTotals.poUsed }}</div>
+          <div style="padding:12px 10px;text-align:right;font-weight:700;font-size:13px">{{ accountTotals.remaining }}</div>
+          <div></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPlacementLevel }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);font-weight:700">Columns</div>
+        <sc-for list="{{ plColChips }}" as="ch" hint-placeholder-count="6">
+          <button onClick="{{ ch.onClick }}" style="background:{{ ch.bg }};color:{{ ch.fg }};border:1px solid var(--wrr-ink);padding:5px 11px;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;font-family:var(--font-sans)">{{ ch.label }}</button>
+        </sc-for>
+      </div>
+      <div>
+        <div style="display:grid;grid-template-columns:{{ plColTemplate }};border-top:1px solid var(--wrr-ink);border-bottom:1px solid var(--wrr-ink)">
+          <div></div>
+          <div style="padding:8px 6px 8px 0;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40)">Rosie</div>
+          <div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40)">Role</div>
+          <div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40)">Order form</div>
+          <div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Scoped</div>
+          <div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Hours used</div>
+          <div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">PO used</div>
+          <div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">(Over)/Under</div>
+          <sc-if value="{{ plColVis.fees }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Fees inv.</div></sc-if>
+          <sc-if value="{{ plColVis.expenses }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Expenses</div></sc-if>
+          <sc-if value="{{ plColVis.totalInv }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Total inv.</div></sc-if>
+          <sc-if value="{{ plColVis.budget }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Budget</div></sc-if>
+          <sc-if value="{{ plColVis.overBudget }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">(O)/U budget</div></sc-if>
+          <sc-if value="{{ plColVis.projEnd }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40)">Proj. end</div></sc-if>
+          <div style="padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--wrr-ink-40)">Status</div>
+        </div>
+        <sc-for list="{{ placementRows }}" as="r" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:{{ plColTemplate }};border-bottom:1px solid var(--wrr-ink-20)">
+            <div style="padding:8px 0;display:flex;align-items:center" onClick="{{ r.onCheck }}"><input type="checkbox" checked="{{ r.checked }}" readOnly="{{ true }}" style="width:13px;height:13px;cursor:pointer;accent-color:var(--wrr-ink)"></div>
+            <div style="padding:8px 6px 8px 0;font-weight:700;font-size:11.5px;color:{{ r.nameColor }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.rosie }}</div>
+            <div style="padding:8px 6px;font-size:11px;color:var(--wrr-ink-60);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.role }}</div>
+            <div style="padding:8px 6px;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.po }}</div>
+            <div style="padding:8px 6px;text-align:right;font-size:11.5px">{{ r.scoped }}</div>
+            <div style="padding:8px 6px;text-align:right">
+              <div style="font-size:11.5px">{{ r.used }}</div>
+              <div style="height:3px;background:var(--wrr-ink-10);margin-top:4px"><div style="height:100%;width:{{ r.pct }}%;background:{{ r.barColor }}"></div></div>
+            </div>
+            <div style="padding:8px 6px;text-align:right">
+              <div style="font-size:11.5px">{{ r.poUsedFmt }}</div>
+              <div style="height:3px;background:var(--wrr-ink-10);margin-top:4px"><div style="height:100%;width:{{ r.poUsedPct }}%;background:{{ r.poUsedColor }}"></div></div>
+            </div>
+            <div style="padding:8px 6px;text-align:right;font-size:11.5px">{{ r.remaining }}</div>
+            <sc-if value="{{ plColVis.fees }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;text-align:right;font-size:11.5px">{{ r.feesInv }}</div></sc-if>
+            <sc-if value="{{ plColVis.expenses }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;text-align:right;font-size:11.5px;color:{{ r.expensesColor }}">{{ r.expensesFmt }}</div></sc-if>
+            <sc-if value="{{ plColVis.totalInv }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;text-align:right;font-size:11.5px;font-weight:700">{{ r.totalInv }}</div></sc-if>
+            <sc-if value="{{ plColVis.budget }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;text-align:right;font-size:11.5px">{{ r.budgetFmt }}</div></sc-if>
+            <sc-if value="{{ plColVis.overBudget }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;text-align:right;font-size:11.5px">{{ r.overBudget }}</div></sc-if>
+            <sc-if value="{{ plColVis.projEnd }}" hint-placeholder-val="{{ true }}"><div style="padding:8px 6px;font-size:11px;white-space:nowrap">{{ r.projEnd }}</div></sc-if>
+            <div style="padding:8px 6px"><span style="font-size:10px;font-weight:700;color:{{ r.statusColor }};background:{{ r.statusBg }};padding:3px 7px;border-radius:999px;white-space:nowrap">{{ r.status }}</span></div>
+          </div>
+        </sc-for>
+        <div style="display:grid;grid-template-columns:{{ plColTemplate }};background:var(--wrr-ink-05);border-bottom:1px solid var(--wrr-ink)">
+          <div></div>
+          <div style="padding:10px 6px 10px 0;font-weight:700;font-size:11.5px">Total, {{ placementRows.length }}</div>
+          <div></div><div></div>
+          <div style="padding:10px 6px;text-align:right;font-weight:700;font-size:11.5px">{{ placementTotals.scoped }}</div>
+          <div style="padding:10px 6px;text-align:right;font-weight:700;font-size:11.5px">{{ placementTotals.used }}</div>
+          <div style="padding:10px 6px;text-align:right;font-weight:700;font-size:11.5px">{{ placementTotals.poUsed }}</div>
+          <div style="padding:10px 6px;text-align:right;font-weight:700;font-size:11.5px">{{ placementTotals.remaining }}</div>
+          <sc-if value="{{ plColVis.fees }}" hint-placeholder-val="{{ true }}"><div style="padding:10px 6px;text-align:right;font-weight:700;font-size:11.5px">{{ placementTotals.feesInv }}</div></sc-if>
+          <sc-if value="{{ plColVis.expenses }}" hint-placeholder-val="{{ true }}"><div style="padding:10px 6px;text-align:right;font-weight:700;font-size:11.5px">{{ placementTotals.expensesFmt }}</div></sc-if>
+          <sc-if value="{{ plColVis.totalInv }}" hint-placeholder-val="{{ true }}"><div style="padding:10px 6px;text-align:right;font-weight:700;font-size:11.5px">{{ placementTotals.totalInv }}</div></sc-if>
+          <sc-if value="{{ plColVis.budget }}" hint-placeholder-val="{{ true }}"><div style="padding:10px 6px;text-align:right;font-weight:700;font-size:11.5px">{{ placementTotals.budgetFmt }}</div></sc-if>
+          <sc-if value="{{ plColVis.overBudget }}" hint-placeholder-val="{{ true }}"><div style="padding:10px 6px;text-align:right;font-weight:700;font-size:11.5px">{{ placementTotals.overBudget }}</div></sc-if>
+          <sc-if value="{{ plColVis.projEnd }}" hint-placeholder-val="{{ true }}"><div></div></sc-if>
+          <div></div>
+        </div>
+      </div>
+    </sc-if>
+  </sc-if>
+
+  <sc-if value="{{ isFin }}" hint-placeholder-val="{{ false }}">
+    <h2 class="wrr-h3" style="margin-top:44px;margin-bottom:4px">Reconciliation by Rosie</h2>
+    <p style="font-size:13px;color:var(--wrr-ink-60);margin:0 0 24px">What was invoiced against what was budgeted, this reporting period.</p>
+    <div style="overflow-x:auto">
+      <div style="display:grid;grid-template-columns:1.2fr 120px 100px 100px 100px 110px;min-width:820px;border-top:1px solid var(--wrr-ink);border-bottom:1px solid var(--wrr-ink)">
+        <div style="padding:10px 10px 10px 0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40)">Rosie</div>
+        <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40)">PO</div>
+        <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Fees inv.</div>
+        <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Total inv.</div>
+        <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">Budget</div>
+        <div style="padding:10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--wrr-ink-40);text-align:right">(Over)/Under</div>
+      </div>
+      <sc-for list="{{ finRows }}" as="f" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:1.2fr 120px 100px 100px 100px 110px;min-width:820px;border-bottom:1px solid var(--wrr-ink-20)">
+          <div style="padding:14px 10px 14px 0;font-weight:700;font-size:14px">{{ f.rosie }}</div>
+          <div style="padding:14px 10px;font-size:13px">{{ f.po }}</div>
+          <div style="padding:14px 10px;text-align:right;font-size:13px">{{ f.fees }}</div>
+          <div style="padding:14px 10px;text-align:right;font-size:13px;font-weight:700">{{ f.total }}</div>
+          <div style="padding:14px 10px;text-align:right;font-size:13px">{{ f.budget }}</div>
+          <div style="padding:14px 10px;text-align:right;font-size:13px;color:var(--wrr-approved);font-weight:700">{{ f.remaining }}</div>
+        </div>
+      </sc-for>
+      <div style="display:grid;grid-template-columns:1.2fr 120px 100px 100px 100px 110px;min-width:820px;background:var(--wrr-ink-05);border-bottom:1px solid var(--wrr-ink)">
+        <div style="padding:12px 10px 12px 0;font-weight:700;font-size:13px">Total</div>
+        <div></div>
+        <div style="padding:12px 10px;text-align:right;font-weight:700;font-size:13px">{{ finTotals.fees }}</div>
+        <div style="padding:12px 10px;text-align:right;font-weight:700;font-size:13px">{{ finTotals.total }}</div>
+        <div style="padding:12px 10px;text-align:right;font-weight:700;font-size:13px">{{ finTotals.budget }}</div>
+        <div style="padding:12px 10px;text-align:right;font-weight:700;font-size:13px">{{ finTotals.remaining }}</div>
+      </div>
+    </div>
+
+    <h2 class="wrr-h3" style="margin-top:56px;margin-bottom:4px">POs / Order forms</h2>
+    <p style="font-size:13px;color:var(--wrr-ink-60);margin:0 0 24px">Tracking against each PO or order form.</p>
+    <div>
+      <sc-for list="{{ accountRows }}" as="a" hint-placeholder-count="4">
+        <div style="border-top:1px solid var(--wrr-ink);padding:18px 0">
+          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-weight:700;font-size:15px">{{ a.label }}</div>
+              <div style="font-size:12px;color:var(--wrr-ink-60)">{{ a.client }} &middot; {{ a.status }} &middot; {{ a.rosieCount }} Rosie(s) &middot; {{ a.remaining }} hrs remaining</div>
+            </div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:20px">{{ a.pct }}%</div>
+          </div>
+          <div style="height:6px;background:var(--wrr-ink-10);margin-top:10px"><div style="height:100%;width:{{ a.pct }}%;background:var(--wrr-ink)"></div></div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isOps }}" hint-placeholder-val="{{ false }}">
+    <div style="border:1px solid var(--wrr-ink);padding:48px 32px;margin-top:44px;text-align:center">
+      <p class="wrr-eyebrow" style="color:var(--wrr-ink-40);margin-bottom:10px">Ops lens</p>
+      <div class="wrr-h3" style="margin-bottom:12px">Timesheets and approvals live in Payroll</div>
+      <p style="font-size:14px;color:var(--wrr-ink-60);max-width:480px;margin:0 auto 24px">Pay basis, OT, PTO, sick leave and per-entry approvals are tracked in the Payroll workspace, not in this summary.</p>
+      <a href="Client View v2.dc.html" style="display:inline-block;background:var(--wrr-ink);color:var(--wrr-paper);text-decoration:none;padding:12px 24px;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase">Open Payroll workspace</a>
+    </div>
+  </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CLIENTS = {
+  google: {
+    label: 'Google', accountOwner: 'S. Patel',
+    pos: [
+      {id:'OF-10016834', label:'#10016834 \u00b7 Gemini Marketing Sprint Brand'},
+      {id:'OF-10028055', label:'#10028055 \u00b7 Brand & Content Extension'},
+      {id:'OF-10011531', label:'#10011531 \u00b7 Gemini Marketing Sprint'},
+      {id:'OF-10023478', label:'#10023478 \u00b7 Gemini Social Marketing Creative'}
+    ],
+    placements: [
+      {rosie:'Jordan Ambrose', role:'Senior Producer', po:'OF-10016834', jobCode:'GOOG-BRD', scoped:1024.0, used:1024.0, fees:221374, expenses:934.04, total:222308, budget:221374, projEnd:'06/30/26', status:'Continues under #10028055'},
+      {rosie:'Jordan Ambrose', role:'Senior Producer', po:'OF-10028055', jobCode:'GOOG-EXT', scoped:736.0, used:323.0, fees:66202, expenses:0, total:66202, budget:143520, projEnd:'11/11/26', status:'Active'},
+      {rosie:'Connor Halloway', role:'Senior Producer', po:'OF-10016834', jobCode:'GOOG-BRD', scoped:1504.0, used:714.5, fees:141716, expenses:0, total:141716, budget:293280, projEnd:'12/31/26', status:'Active'},
+      {rosie:'Renata Duarte', role:'Creative Director', po:'OF-10016834', jobCode:'GOOG-BRD', scoped:1368.0, used:666.0, fees:187320, expenses:0, total:187320, budget:383040, projEnd:'12/31/26', status:'Active'},
+      {rosie:'Isabel Gerardo', role:'Creative Director', po:'OF-10016834', jobCode:'GOOG-BRD', scoped:313.0, used:313.0, fees:94800, expenses:0, total:94800, budget:94800, projEnd:'07/17/26', status:'Completed 7/17/26'},
+      {rosie:'Lena Varga', role:'Creative Director', po:'OF-10016834', jobCode:'GOOG-BRD', scoped:606.5, used:490.5, fees:131170, expenses:4411.49, total:135581, budget:161330, projEnd:'09/04/26', status:'Ended early 9/4/26'},
+      {rosie:'Ava Kestrel', role:'Creative Director', po:'OF-10016834', jobCode:'GOOG-BRD', scoped:520.0, used:0.0, fees:0, expenses:0, total:0, budget:132600, projEnd:'11/30/26', status:'Active'},
+      {rosie:'Mateus Ferreira', role:'Art Director', po:'OF-10016834', jobCode:'GOOG-BRD', scoped:520.0, used:9.2, fees:1288, expenses:0, total:1288, budget:72800, projEnd:'11/28/26', status:'Active'},
+      {rosie:'Haruto Okamoto', role:'Art Director', po:'OF-10016834', jobCode:'GOOG-BRD', scoped:520.0, used:0.0, fees:0, expenses:0, total:0, budget:72800, projEnd:'11/30/26', status:'Pending signature'},
+      {rosie:'Daniel Achebe', role:'Sr. Creative Technologist', po:'OF-10011531', jobCode:'GOOG-SOC', scoped:783.4, used:763.8, fees:235012, expenses:0, total:235012, budget:235012, projEnd:'02/13/26', status:'Completed 2/13/26'},
+      {rosie:'Sofia Beaumont', role:'Designer / Motion Artist', po:'OF-10011531', jobCode:'GOOG-SOC', scoped:1800.0, used:1783.0, fees:375795, expenses:21.10, total:375816, budget:378000, projEnd:'08/26/26', status:'Completed 8/26/26'},
+      {rosie:'Katrina Ryan', role:'Copywriter & Maker', po:'OF-10011531', jobCode:'GOOG-SOC', scoped:736.0, used:736.0, fees:154560, expenses:0, total:154560, budget:154560, projEnd:'02/23/26', status:'Completed 2/23/26'},
+      {rosie:'Priya Nathan', role:'Copywriter & Maker', po:'OF-10011531', jobCode:'GOOG-SOC', scoped:1800.0, used:1753.0, fees:373485, expenses:21.10, total:373506, budget:378000, projEnd:'07/29/26', status:'Completed 7/29/26'},
+      {rosie:'Owen Faulkner', role:'Executive Producer', po:'OF-10011531', jobCode:'GOOG-SOC', scoped:1013.4, used:978.4, fees:281518, expenses:1620.49, total:283138, budget:283758, projEnd:'03/19/26', status:'Completed 3/19/26'},
+      {rosie:'Farheena Mustafa', role:'Content Creator', po:'OF-10011531', jobCode:'GOOG-SOC', scoped:1800.0, used:1795.0, fees:380100, expenses:2693.43, total:382793, budget:378000, projEnd:'08/21/26', status:'Completed 8/21/26'},
+      {rosie:'Ciaran Rogers', role:'Content Creator', po:'OF-10011531', jobCode:'GOOG-SOC', scoped:1800.0, used:1800.0, fees:386242, expenses:1010.70, total:387253, budget:378000, projEnd:'07/29/26', status:'Completed 7/29/26'},
+      {rosie:'Katrina Ryan', role:'Creative Director', po:'OF-10023478', jobCode:'GOOG-SO2', scoped:1800.0, used:1588.0, fees:509400, expenses:2179.37, total:511579, budget:540000, projEnd:'07/29/26', status:'Ended early 7/29/26'},
+      {rosie:'Priya Nathan', role:'Sr. Producer', po:'OF-10023478', jobCode:'GOOG-SO2', scoped:1800.0, used:1720.2, fees:340991, expenses:5555.26, total:346546, budget:342000, projEnd:'09/09/26', status:'Active'},
+      {rosie:'Owen Faulkner', role:'Sr. Social Media Manager', po:'OF-10023478', jobCode:'GOOG-SO2', scoped:1016.0, used:995.4, fees:155408, expenses:21.10, total:155429, budget:157480, projEnd:'05/04/26', status:'Active'},
+      {rosie:'Unfilled seat', role:'Sr. Copywriter / Content Creator', po:'OF-10023478', jobCode:'GOOG-SO2', scoped:1800.0, used:0.0, fees:0, expenses:0, total:0, budget:342000, projEnd:'TBD', status:'Unfilled seat'}
+    ]
+  },
+  capitalone: {
+    label: 'Capital One', accountOwner: 'G. Houser',
+    pos: [
+      {id:'US1602351', label:'US1602351 \u00b7 Retail Bank Performance'},
+      {id:'US1719502', label:'US1719502 \u00b7 L&G Banner Refresh'},
+      {id:'US1834341', label:'US1834341 \u00b7 BC&P Q3 Initiatives'},
+      {id:'US1643137', label:'US1643137 \u00b7 Q1 Blog Project Mgmt'}
+    ],
+    placements: [
+      {rosie:'J. Gissubel', role:'BC&P Support', po:'US1602351', jobCode:'CAP57', scoped:520, used:412, expenses:212.50, projEnd:'\u2014', status:'Active', rate:158},
+      {rosie:'A. Wittenborn', role:'AD Support', po:'US1719502', jobCode:'CAP76', scoped:160, used:98, expenses:0, projEnd:'04/30/26', status:'Active', rate:145},
+      {rosie:'L. Lee', role:'BC&P Support', po:'US1834341', jobCode:'CAP66', scoped:220, used:140, expenses:64.00, projEnd:'\u2014', status:'Active', rate:150},
+      {rosie:'M. Young', role:'Project Manager', po:'US1643137', jobCode:'CAP64', scoped:180, used:160, expenses:0, projEnd:'03/31/26', status:'Active', rate:120},
+      {rosie:'R. Okafor', role:'BC&P Support', po:'US1602351', jobCode:'CAP58', scoped:160, used:171, expenses:38.20, projEnd:'\u2014', status:'Active', rate:140}
+    ]
+  },
+  ihg: {
+    label: 'IHG', accountOwner: 'D. Okafor',
+    pos: [
+      {id:'PO-IHG-CORE', label:'PO-IHG-CORE \u00b7 Core Team Retainer'},
+      {id:'PO-IHG-UK', label:'PO-IHG-UK \u00b7 UK / Europe Pod'}
+    ],
+    placements: [
+      {rosie:'K. Rhodes', role:'Loyalty Strategist', po:'PO-IHG-CORE', jobCode:'IHG-LOY', scoped:160, used:131, expenses:45.00, projEnd:'\u2014', status:'Active', rate:135},
+      {rosie:'M. Adeyi', role:'Media Analyst', po:'PO-IHG-CORE', jobCode:'IHG-MED', scoped:160, used:152, expenses:0, projEnd:'\u2014', status:'Active', rate:128},
+      {rosie:'B. Ilori', role:'Copywriter', po:'PO-IHG-UK', jobCode:'IHG-EU1', scoped:160, used:98, expenses:22.75, projEnd:'\u2014', status:'Active', rate:110},
+      {rosie:'M. Devlin', role:'Producer', po:'PO-IHG-CORE', jobCode:'IHG-LOY', scoped:160, used:88, expenses:0, projEnd:'\u2014', status:'Active', rate:140},
+      {rosie:'T. Njoku', role:'Media Analyst', po:'PO-IHG-UK', jobCode:'IHG-EU2', scoped:160, used:154, expenses:16.30, projEnd:'\u2014', status:'Active', rate:118}
+    ]
+  }
+};
+Object.values(CLIENTS).forEach(c => c.placements.forEach(p => {
+  if (p.budget == null) { p.budget = Math.round(p.scoped * p.rate); p.fees = Math.round(p.used * p.rate); p.total = p.fees; }
+}));
+const CLIENT_KEYS = ['google','capitalone','ihg'];
+const LENS_CAPTION = {
+  cx: 'CX lens \u2014 pace against contract, and the forecast that moves the end date.',
+  fin: 'Finance lens \u2014 what was invoiced, what was budgeted, and what the difference is.',
+  ops: 'Ops lens \u2014 timesheet-level detail lives in the Payroll workspace.'
+};
+const fmt = n => n.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1});
+const money = n => '$' + Math.round(n).toLocaleString();
+const DOW = ['MO','TU','WE','TH','FR','SA','SU'];
+const paceColor = pct => pct >= 95 ? 'var(--wrr-strikeout)' : pct >= 75 ? '#E8B900' : 'var(--wrr-approved)';
+class Component extends DCLogic {
+  state = { lens:'cx', client:'all', po:'all', jobCode:'all', gran:'account', query:'', expandedPo:null, leaving:false, lensFading:false, safe:false, selPO:{}, selPlacement:{},
+    plColVis:{fees:true, expenses:true, totalInv:true, budget:true, overBudget:true, projEnd:true},
+    calStart:new Date(2026,8,1), calEnd:new Date(2026,8,15), calViewMonth:null, calOpen:false };
+
+  allPlacements() {
+    return CLIENT_KEYS.flatMap(k => CLIENTS[k].placements.map(p => Object.assign({}, p, {client:CLIENTS[k].label, clientKey:k})));
+  }
+  clientPlacements(clientKey) {
+    return clientKey === 'all' ? this.allPlacements() : CLIENTS[clientKey].placements.map(p => Object.assign({}, p, {client:CLIENTS[clientKey].label, clientKey}));
+  }
+  poOptionsFor(clientKey) {
+    if (clientKey === 'all') return CLIENT_KEYS.flatMap(k => CLIENTS[k].pos.map(po => ({key:po.id, label:CLIENTS[k].label + ' \u2014 ' + po.label})));
+    return CLIENTS[clientKey].pos.map(po => ({key:po.id, label:po.label}));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const cd0 = s.calStart, cd1 = s.calEnd || s.calStart;
+    const [rangeStart, rangeEnd] = cd0 <= cd1 ? [cd0, cd1] : [cd1, cd0];
+    const viewMonth = s.calViewMonth || new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+    const first = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+    const gridStart = new Date(first);
+    gridStart.setDate(first.getDate() - ((first.getDay() + 6) % 7));
+    const calDays = Array.from({length:42}, (_, i) => {
+      const d = new Date(gridStart); d.setDate(gridStart.getDate() + i);
+      const inMonth = d.getMonth() === viewMonth.getMonth();
+      const inRange = d >= rangeStart && d <= rangeEnd;
+      const isEdge = d.toDateString() === rangeStart.toDateString() || d.toDateString() === rangeEnd.toDateString();
+      return { label:d.getDate(), weight: isEdge ? 700 : 400,
+        color: isEdge ? 'var(--wrr-paper)' : (inMonth ? 'var(--wrr-ink)' : 'var(--wrr-ink-20)'),
+        bg: isEdge ? 'var(--wrr-ink)' : (inRange ? 'var(--wrr-ink-10)' : 'transparent'),
+        onClick: () => {
+          if (!s.calEnd) {
+            if (d < s.calStart) this.setState({calStart:d, calEnd:s.calStart});
+            else this.setState({calEnd:d, calOpen:false});
+          } else {
+            this.setState({calStart:d, calEnd:null, calViewMonth:null});
+          }
+        } };
+    });
+    const rangeDays = Math.round((rangeEnd - rangeStart) / 86400000) + 1;
+    const sameMonth = rangeStart.getMonth() === rangeEnd.getMonth();
+    const mo = d => d.toLocaleDateString('en-US', {month:'short'});
+    const rangeLabel = s.calEnd
+      ? (sameMonth ? rangeStart.getDate() : rangeStart.getDate() + ' ' + mo(rangeStart)) + ' \u2013 ' + rangeEnd.getDate() + ' ' + mo(rangeEnd) + ' ' + rangeEnd.getFullYear()
+      : rangeStart.toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric'}).toUpperCase() + ' (pick end date)';
+
+    const client = s.client, po = s.po, jobCode = s.jobCode, query = s.query.trim().toLowerCase();
+    const lens = s.lens;
+    const clientOpts = [{key:'all', label:'All Clients'}, ...CLIENT_KEYS.map(k => ({key:k, label:CLIENTS[k].label}))];
+    const poOpts = [{key:'all', label:'All POs'}, ...this.poOptionsFor(client)];
+    const accountOwner = client === 'all' ? 'Multiple' : CLIENTS[client].accountOwner;
+
+    let placements = this.clientPlacements(client);
+    if (po !== 'all') placements = placements.filter(p => p.po === po);
+    const jobCodeOpts = [{key:'all', label:'All job codes'}, ...[...new Set(placements.filter(p=>p.jobCode).map(p=>p.jobCode))].sort().map(j => ({key:j, label:j}))];
+    if (jobCode !== 'all') placements = placements.filter(p => p.jobCode === jobCode);
+    if (query) placements = placements.filter(p => (p.rosie + ' ' + p.po + ' ' + (p.jobCode||'')).toLowerCase().includes(query));
+
+    const STATUS_STYLE_FOR = st => {
+      if (st === 'Active') return {fg:'var(--wrr-ballpoint)', bg:'#E3EAFD'};
+      if (st === 'Open' || st === 'Unfilled seat') return {fg:'var(--wrr-strikeout)', bg:'#FDE3DE'};
+      if (st === 'Pending signature') return {fg:'var(--wrr-strikeout)', bg:'#FDE3DE'};
+      if (/^Ended early/.test(st)) return {fg:'#7A6900', bg:'#FFF6CC'};
+      if (/^Completed/.test(st) || /^Continues under/.test(st)) return {fg:'var(--wrr-ink-60)', bg:'var(--wrr-ink-10)'};
+      return {fg:'var(--wrr-ink-60)', bg:'var(--wrr-ink-10)'};
+    };
+    const placementRows = placements.map(p => {
+      const remaining = p.scoped - p.used;
+      const pctNum = p.used / p.scoped * 100;
+      const key = p.rosie + '|' + p.po;
+      const totalInv = p.total != null ? p.total : p.fees;
+      const overUnderBudget = p.budget != null && totalInv != null ? p.budget - totalInv : null;
+      return { rosie:p.rosie, role:p.role, po:p.po, jobCode:p.jobCode || '\u2014',
+        nameColor: p.status === 'Open' || p.status === 'Unfilled seat' ? 'var(--wrr-ink-60)' : 'var(--wrr-ink)',
+        scoped:fmt(p.scoped), used:fmt(p.used), remaining:fmt(remaining),
+        pct: Math.min(100, pctNum).toFixed(1), barColor: paceColor(pctNum),
+        projEnd:p.projEnd, status:p.status, statusColor:STATUS_STYLE_FOR(p.status).fg, statusBg:STATUS_STYLE_FOR(p.status).bg,
+        feesInv: p.fees != null ? money(p.fees) : '\u2014',
+        expensesFmt: p.expenses != null ? (p.expenses < 0 ? '(' + money(-p.expenses) + ')' : money(p.expenses)) : '\u2014',
+        expensesColor: p.expenses < 0 ? 'var(--wrr-strikeout)' : 'var(--wrr-ink)',
+        totalInv: totalInv != null ? money(totalInv) : '\u2014',
+        budgetFmt: p.budget != null ? money(p.budget) : '\u2014',
+        overBudget: overUnderBudget != null ? money(overUnderBudget) : '\u2014',
+        poUsedFmt: totalInv != null ? money(totalInv) : '\u2014',
+        poUsedPct: p.budget > 0 && totalInv != null ? Math.min(100, totalInv / p.budget * 100).toFixed(1) : '0.0',
+        poUsedColor: paceColor(p.budget > 0 && totalInv != null ? totalInv / p.budget * 100 : 0),
+        checked: !!s.selPlacement[key],
+        onCheck: e => { e.stopPropagation(); this.setState({selPlacement:Object.assign({}, s.selPlacement, {[key]: !s.selPlacement[key]})}); } };
+    });
+    const placementTotals = {
+      scoped:fmt(placements.reduce((a,p)=>a+p.scoped,0)),
+      used:fmt(placements.reduce((a,p)=>a+p.used,0)),
+      remaining:fmt(placements.reduce((a,p)=>a+(p.scoped-p.used),0)),
+      poUsed: money(placements.reduce((a,p)=>a+((p.total!=null?p.total:p.fees)||0),0)),
+      feesInv: money(placements.reduce((a,p)=>a+(p.fees||0),0)),
+      expensesFmt: money(placements.reduce((a,p)=>a+(p.expenses||0),0)),
+      totalInv: money(placements.reduce((a,p)=>a+((p.total!=null?p.total:p.fees)||0),0)),
+      budgetFmt: money(placements.reduce((a,p)=>a+(p.budget||0),0)),
+      overBudget: money(placements.reduce((a,p)=>a+((p.budget||0)-((p.total!=null?p.total:p.fees)||0)),0))
+    };
+    const pcv = s.plColVis;
+    const plColTemplate = ['26px', '95px', '110px', '80px', '62px', '68px', '78px', '68px',
+      pcv.fees ? '75px' : null, pcv.expenses ? '65px' : null, pcv.totalInv ? '75px' : null,
+      pcv.budget ? '75px' : null, pcv.overBudget ? '82px' : null, pcv.projEnd ? '68px' : null, '112px'].filter(Boolean).join(' ');
+    const plAllOn = pcv.fees && pcv.expenses && pcv.totalInv && pcv.budget && pcv.overBudget && pcv.projEnd;
+    const plColChips = [
+      {label:'All', bg:plAllOn ? 'var(--wrr-ink)' : 'var(--wrr-paper)', fg:plAllOn ? 'var(--wrr-paper)' : 'var(--wrr-ink)',
+        onClick:() => this.setState({plColVis:{fees: !plAllOn, expenses: !plAllOn, totalInv: !plAllOn, budget: !plAllOn, overBudget: !plAllOn, projEnd: !plAllOn}})},
+      ...[['fees','Fees invoiced'],['expenses','Expenses'],['totalInv','Total invoiced'],['budget','Total budget'],['overBudget','(Over)/Under budget'],['projEnd','Projected end']].map(([k2,label]) => ({
+        label, bg:pcv[k2] ? 'var(--wrr-ink)' : 'var(--wrr-paper)', fg:pcv[k2] ? 'var(--wrr-paper)' : 'var(--wrr-ink)',
+        onClick:() => this.setState({plColVis:Object.assign({}, pcv, {[k2]: !pcv[k2]})})
+      }))
+    ];
+
+    const byPo = {};
+    placements.forEach(p => {
+      if (!byPo[p.po]) byPo[p.po] = { po:p.po, client:p.client, rosies:new Set(), jobCodes:new Set(), scoped:0, used:0, hasOpen:false, members:[], totalInv:0, budget:0 };
+      const g = byPo[p.po];
+      g.rosies.add(p.rosie); if (p.jobCode) g.jobCodes.add(p.jobCode);
+      g.scoped += p.scoped; g.used += p.used; if (p.status === 'Open') g.hasOpen = true;
+      g.totalInv += (p.total != null ? p.total : (p.fees || 0)); g.budget += (p.budget || 0);
+      g.members.push(p);
+    });
+    const poLabelFor = (clientKey, id) => (CLIENTS[clientKey] ? CLIENTS[clientKey].pos.find(x=>x.id===id) : null);
+    const accountRows = Object.values(byPo).map(g => {
+      const remaining = g.scoped - g.used;
+      const pctNum = g.used / g.scoped * 100;
+      const clientKey = CLIENT_KEYS.find(k => CLIENTS[k].label === g.client);
+      const found = poLabelFor(clientKey, g.po);
+      return { id:g.po, label: found ? found.label : g.po, client:g.client,
+        jobCodes: g.jobCodes.size ? [...g.jobCodes].join(', ') : '\u2014',
+        rosieCount:g.rosies.size, scoped:fmt(g.scoped), used:fmt(g.used), remaining:fmt(remaining),
+        pct: Math.min(100, pctNum).toFixed(1), barColor: paceColor(pctNum),
+        status: g.hasOpen ? 'Open seat' : 'Active', statusColor: g.hasOpen ? 'var(--wrr-strikeout)' : 'var(--wrr-approved)',
+        expanded: s.expandedPo === g.po, onToggle: () => this.setState({expandedPo: s.expandedPo === g.po ? null : g.po}),
+        checked: !!s.selPO[g.po],
+        onCheck: e => { e.stopPropagation(); this.setState({selPO:Object.assign({}, s.selPO, {[g.po]: !s.selPO[g.po]})}); },
+        poBurnPct: g.budget > 0 ? Math.min(100, g.totalInv / g.budget * 100).toFixed(1) : '0.0',
+        poBurnUsed: money(g.totalInv), poBurnBudget: money(g.budget),
+        poBurnColor: paceColor(g.budget > 0 ? g.totalInv / g.budget * 100 : 0),
+        stack: g.members.map(m => ({ w: (m.used / g.scoped * 100).toFixed(2), color: 'var(--wrr-ink)', rosie:m.rosie })),
+        members: g.members.map(m => ({ rosie:m.rosie, role:m.role, used:fmt(m.used), scoped:fmt(m.scoped),
+          pct: Math.min(100, m.used / m.scoped * 100).toFixed(1),
+          barColor: (m.used / m.scoped * 100) >= 95 ? 'var(--wrr-strikeout)' : 'var(--wrr-ink)' }))
+      };
+    });
+    const accountTotals = {
+      rosieCount: new Set(placements.map(p=>p.rosie)).size,
+      scoped:fmt(placements.reduce((a,p)=>a+p.scoped,0)),
+      used:fmt(placements.reduce((a,p)=>a+p.used,0)),
+      poUsed:money(placements.reduce((a,p)=>a+(p.total!=null?p.total:(p.fees||0)),0)),
+      remaining:fmt(placements.reduce((a,p)=>a+(p.scoped-p.used),0))
+    };
+
+    const finRows = placements.map(p => ({ rosie:p.rosie, po:p.po, fees:s.safe ? 'hidden' : money(p.fees), total:s.safe ? 'hidden' : money(p.total), budget:s.safe ? 'hidden' : money(p.budget), remaining:s.safe ? 'hidden' : money(p.budget - p.total) }));
+    const finTotals = {
+      fees:s.safe ? 'hidden' : money(placements.reduce((a,p)=>a+p.fees,0)), total:s.safe ? 'hidden' : money(placements.reduce((a,p)=>a+p.total,0)),
+      budget:s.safe ? 'hidden' : money(placements.reduce((a,p)=>a+p.budget,0)), remaining:s.safe ? 'hidden' : money(placements.reduce((a,p)=>a+p.budget-p.total,0))
+    };
+
+    return {
+      clientOpts, client, onClient: e => this.setState({client:e.target.value, po:'all'}),
+      poOpts, po, onPo: e => this.setState({po:e.target.value, jobCode:'all'}),
+      poNote: po === 'all' ? (accountRows.length + ' PO(s) tracked') : 'Filtered to one PO',
+      jobCodeOpts, jobCode, onJobCode: e => this.setState({jobCode:e.target.value}),
+      jobCodeNote: jobCodeOpts.length > 1 ? (jobCodeOpts.length - 1) + ' code(s) in view' : 'No job codes in view',
+      accountOwner, query: s.query, onSearch: e => this.setState({query:e.target.value}),
+      gran: s.gran, isAccountLevel: s.gran === 'account', isPlacementLevel: s.gran === 'placement',
+      granAccountBg: s.gran === 'account' ? 'var(--wrr-ink)' : 'var(--wrr-paper)', granAccountFg: s.gran === 'account' ? 'var(--wrr-paper)' : 'var(--wrr-ink)',
+      granPlacementBg: s.gran === 'placement' ? 'var(--wrr-ink)' : 'var(--wrr-paper)', granPlacementFg: s.gran === 'placement' ? 'var(--wrr-paper)' : 'var(--wrr-ink)',
+      onGranAccount: () => this.setState({gran:'account'}), onGranPlacement: () => this.setState({gran:'placement'}),
+      granCaption: s.gran === 'account' ? 'One row per PO or order form, rolled up across every Rosie against it.' : 'One row per Rosie, against the specific PO or order form she bills to.',
+      accountRows, accountTotals, placementRows, placementTotals, finRows, finTotals, plColTemplate, plColChips, plColVis:pcv,
+      pageOpacity: s.leaving ? 0 : 1,
+      lensOpacity: s.lensFading ? 0 : 1,
+      lensTabs: [['cx','CX'],['fin','Finance'],['ops','Ops']].map(([key,label]) => ({
+        label, bg: lens === key ? 'var(--wrr-paper)' : 'transparent', fg: lens === key ? 'var(--wrr-ink)' : 'var(--wrr-paper)',
+        onClick: () => {
+          if (key === 'ops') { this.setState({leaving:true}); setTimeout(() => { window.location.href = 'Client View v2.dc.html'; }, 150); }
+          else if (key !== lens) {
+            this.setState({lensFading:true});
+            setTimeout(() => { this.setState({lens:key, lensFading:false}); }, 140);
+          }
+        }
+      })),
+      onExport: () => {},
+      rangeLabel, calYearLabel: viewMonth.toLocaleDateString('en-US',{month:'long',year:'numeric'}),
+      calHint: s.calEnd ? 'Click a date to start a new range' : 'Pick a start, then an end date',
+      calDow: DOW, calDays, calOpen: s.calOpen,
+      onCalPrev: () => { const n=rangeDays; const a=new Date(rangeStart); a.setDate(a.getDate()-n); const b=new Date(rangeEnd); b.setDate(b.getDate()-n); this.setState({calStart:a, calEnd:b, calViewMonth:null}); },
+      onCalNext: () => { const n=rangeDays; const a=new Date(rangeStart); a.setDate(a.getDate()+n); const b=new Date(rangeEnd); b.setDate(b.getDate()+n); this.setState({calStart:a, calEnd:b, calViewMonth:null}); },
+      onCalToggle: () => this.setState({calOpen: !s.calOpen, calViewMonth:null}),
+      onCalMonthPrev: () => this.setState({calViewMonth:new Date(viewMonth.getFullYear(), viewMonth.getMonth()-1, 1)}),
+      onCalMonthNext: () => this.setState({calViewMonth:new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1, 1)}),
+      lensCaption: LENS_CAPTION[lens],
+      isCx: lens === 'cx', isFin: lens === 'fin', isOps: lens === 'ops',
+      safeBg: s.safe ? 'var(--wrr-highlight)' : 'transparent', safeFg: s.safe ? 'var(--wrr-ink)' : 'var(--wrr-paper)',
+      safeBorder: s.safe ? 'var(--wrr-highlight)' : '#666', safeLabel: 'Client-safe ' + (s.safe ? 'ON' : 'OFF'),
+      onSafeToggle: () => this.setState({safe: !s.safe})
+    };
+  }
+}
+
+</script>
+</body>
+</html>
