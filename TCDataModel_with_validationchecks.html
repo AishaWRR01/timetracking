@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rosie Hours Data Model</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: an entity-relationship sheet; source on top, two new tables, TimeCamp target, unified Firestore table at the foot, connectors drawn over the grid */
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --head:#f0f2f5; --ink:#161a22; --muted:#5d6574; --faint:#8a92a1; --rule:#e3e6eb; --border:#d5d9e0;
+  --sf:#2f6fdf; --ts:#169a6b; --pu:#c58a12; --tc:#8a4fd6; --fs:#d6455d;
+  --pk:#b7791f; --fk:#3e63b8;
+  --display:"Instrument Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--display);line-height:1.35}
+.page{max-width:1360px;margin:0 auto;padding-block:20px 20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 16px;margin-bottom:14px}
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);width:100%}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:0;font-size:15px}
+
+.fit{position:relative;width:100%;overflow:hidden}
+.sheet{position:relative;width:1320px;transform-origin:0 0;display:grid;grid-template-columns:repeat(3,1fr);column-gap:56px;row-gap:40px;padding:4px 44px 4px 4px}
+#sf{grid-column:2;grid-row:1}#lg{grid-column:3;grid-row:1}#ts{grid-column:1;grid-row:2}#tc{grid-column:2;grid-row:2}#pu{grid-column:3;grid-row:2}#fs{grid-column:1 / -1;grid-row:3}
+svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+
+.t{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;z-index:1}
+
+
+.t-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;background:var(--head);border-bottom:1px solid var(--rule);border-top:3px solid var(--c)}
+.t-name{font-weight:600;font-size:16px;letter-spacing:-.01em}
+.t-role{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--c);white-space:nowrap}
+.t ul{list-style:none;margin:0;padding:2px 0}
+.t li{display:grid;grid-template-columns:28px minmax(0,auto) 1fr;align-items:baseline;column-gap:10px;padding:3px 14px;font-size:13px}
+.t li + li{border-top:1px solid var(--rule)}
+.f{font-family:var(--mono);font-size:13px;color:var(--ink);white-space:nowrap}
+.k{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.04em;text-align:center;border-radius:3px;padding:0}
+.k.pk{color:var(--pk);background:color-mix(in srgb,var(--pk) 14%,transparent)}
+.k.fk{color:var(--fk);background:color-mix(in srgb,var(--fk) 14%,transparent)}
+.n{color:var(--muted);font-size:12px;min-width:0}
+.t li.pkrow .f{font-weight:600}
+.wide ul{columns:3;column-gap:0}
+.wide li{break-inside:avoid;border-top:1px solid var(--rule)}
+
+.legend{align-self:start;margin-top:12px;justify-self:center;width:320px;display:grid;grid-template-columns:1fr;gap:8px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:13.5px;color:var(--muted);position:relative;z-index:1}
+.legend h2{grid-column:1 / -1;margin:0;font-size:11.5px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:500}
+.li{display:flex;align-items:center;gap:8px}
+.sw{flex:none;width:22px;height:2px;border-radius:2px;background:var(--c);position:relative}
+.sw::after{content:"";position:absolute;right:-2px;top:-3px;border-left:6px solid var(--c);border-top:4px solid transparent;border-bottom:4px solid transparent}
+.card{font-family:var(--mono);font-size:11.5px;color:var(--ink);border:1px solid var(--border);border-radius:3px;padding:0 4px}
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+
+
+<div class="page">
+  <header>
+    <span class="eyebrow">We Are Rosie · Hours pipeline</span>
+    <h1>How a Rosie's hours move from Salesforce to Firestore</h1>
+    <p class="sub">Every table carries <span class="f">contact_id</span> and <span class="f">placement_id</span>, so any record can be traced back to the Salesforce placement and the Rosie who logged it.</p>
+  </header>
+
+  <div class="fit" id="fit">
+    <div class="sheet" id="sheet">
+      <svg class="wires" id="wires" aria-hidden="true"></svg>
+
+      <section class="t center" id="sf" style="--c:var(--sf)">
+        <div class="t-head"><span class="t-name">Salesforce Placement</span><span class="t-role">Source</span></div>
+        <ul>
+          <li class="pkrow"><span class="k pk">PK</span><span class="f">placement_id</span><span class="n"></span></li>
+          <li><span class="k fk">FK</span><span class="f">contact_id</span><span class="n">the Rosie</span></li>
+          <li><span></span><span class="f">contact_name</span><span class="n"></span></li>
+          <li><span></span><span class="f">contact_email</span><span class="n">the Rosie's email</span></li>
+          <li><span></span><span class="f">mailing_address</span><span class="n">Salesforce Contact mailing address</span></li>
+          <li><span></span><span class="f">placement_name</span><span class="n"></span></li>
+          <li><span></span><span class="f">account_name</span><span class="n"></span></li>
+          <li><span></span><span class="f">pod</span><span class="n"></span></li>
+          <li><span></span><span class="f">contract_type</span><span class="n">W-2 / 1099</span></li>
+          <li><span></span><span class="f">hours</span><span class="n"></span></li>
+          <li><span></span><span class="f">is_active</span><span class="n"></span></li>
+          <li><span></span><span class="f">billable</span><span class="n"></span></li>
+          <li><span></span><span class="f">created_at</span><span class="n"></span></li>
+          <li><span></span><span class="f">updated_at</span><span class="n"></span></li>
+        </ul>
+      </section>
+
+      <section class="t" id="ts" style="--c:var(--ts)">
+        <div class="t-head"><span class="t-name">Timesheets</span><span class="t-role">New table</span></div>
+        <ul>
+          <li class="pkrow"><span class="k pk">PK</span><span class="f">timesheet_id</span><span class="n"></span></li>
+          <li><span class="k fk">FK</span><span class="f">contact_id</span><span class="n"></span></li>
+          <li><span class="k fk">FK</span><span class="f">placement_id</span><span class="n"></span></li>
+          <li><span></span><span class="f">contact_name</span><span class="n"></span></li>
+          <li><span></span><span class="f">placement_name</span><span class="n"></span></li>
+          <li><span></span><span class="f">work_date</span><span class="n"></span></li>
+          <li><span></span><span class="f">duration_seconds</span><span class="n">time duration</span></li>
+          <li><span></span><span class="f">hours</span><span class="n"></span></li>
+          <li><span></span><span class="f">notes</span><span class="n"></span></li>
+          <li><span></span><span class="f">category</span><span class="n">Hourly / PTO / Sick / Overage / Expense</span></li>
+          <li><span></span><span class="f">status</span><span class="n">Not submitted / Submitted / Rejected</span></li>
+          <li><span></span><span class="f">created_at</span><span class="n"></span></li>
+          <li><span></span><span class="f">updated_at</span><span class="n"></span></li>
+                  <li><span></span><span class="f">validation_errors</span><span class="n">checks that failed; set by PostToolUse validation</span></li>
+          <li><span></span><span class="f">claude_review_status</span><span class="n">pending / reviewed / resolved; set by PostToolUse validation</span></li>
+          <li><span></span><span class="f">claude_findings</span><span class="n">likely cause, suggested fix</span></li>
+          <li><span></span><span class="f">claude_reviewed_at</span><span class="n"></span></li>
+          <li><span></span><span class="f">resolved_by</span><span class="n">person who fixed the source</span></li>
+</ul>
+      </section>
+
+      <section class="t" id="pu" style="--c:var(--pu)">
+        <div class="t-head"><span class="t-name">Clock &amp; Lunch Punches</span><span class="t-role">New table</span></div>
+        <ul>
+          <li class="pkrow"><span class="k pk">PK</span><span class="f">punch_id</span><span class="n"></span></li>
+          <li><span class="k fk">FK</span><span class="f">contact_id</span><span class="n"></span></li>
+          <li><span class="k fk">FK</span><span class="f">placement_id</span><span class="n"></span></li>
+          <li><span></span><span class="f">contact_name</span><span class="n"></span></li>
+          <li><span></span><span class="f">placement_name</span><span class="n"></span></li>
+          <li><span></span><span class="f">work_date</span><span class="n"></span></li>
+          <li><span></span><span class="f">clock_duration_seconds</span><span class="n">time clock duration</span></li>
+          <li><span></span><span class="f">lunch_punch_duration_seconds</span><span class="n">lunch punch duration</span></li>
+          <li><span></span><span class="f">punch_type</span><span class="n">CLOCK_IN / LUNCH_OUT / LUNCH_IN / CLOCK_OUT</span></li>
+          <li><span></span><span class="f">punch_timestamp</span><span class="n"></span></li>
+          <li><span></span><span class="f">overtime_rule</span><span class="n">set by the Salesforce mailing_address, e.g. weekly over 40h</span></li>
+          <li><span></span><span class="f">regular_seconds</span><span class="n">paid at 1x</span></li>
+          <li><span></span><span class="f">created_at</span><span class="n"></span></li>
+          <li><span></span><span class="f">updated_at</span><span class="n"></span></li>
+                  <li><span></span><span class="f">validation_errors</span><span class="n">checks that failed; set by PostToolUse validation</span></li>
+          <li><span></span><span class="f">claude_review_status</span><span class="n">pending / reviewed / resolved; set by PostToolUse validation</span></li>
+          <li><span></span><span class="f">claude_findings</span><span class="n">likely cause, suggested fix</span></li>
+          <li><span></span><span class="f">claude_reviewed_at</span><span class="n"></span></li>
+          <li><span></span><span class="f">resolved_by</span><span class="n">person who fixed the source</span></li>
+</ul>
+      </section>
+
+      <section class="t" id="tc" style="--c:var(--tc)">
+        <div class="t-head"><span class="t-name">TimeCamp Time Entry</span><span class="t-role">Target</span></div>
+        <ul>
+          <li class="pkrow"><span class="k pk">PK</span><span class="f">timecamp_entry_id</span><span class="n"></span></li>
+          <li><span class="k fk">FK</span><span class="f">contact_id</span><span class="n"></span></li>
+          <li><span class="k fk">FK</span><span class="f">placement_id</span><span class="n"></span></li>
+          <li><span class="k fk">FK</span><span class="f">timesheet_id</span><span class="n"></span></li>
+          <li><span></span><span class="f">work_date</span><span class="n"></span></li>
+          <li><span></span><span class="f">duration_seconds</span><span class="n">time duration</span></li>
+          <li><span></span><span class="f">hours</span><span class="n"></span></li>
+          <li><span></span><span class="f">notes</span><span class="n">sent as TimeCamp's description</span></li>
+          <li><span></span><span class="f">category</span><span class="n">Hourly / PTO / Sick / Overage / Expense</span></li>
+          <li><span></span><span class="f">status</span><span class="n">Not submitted / Submitted / Rejected</span></li>
+          <li><span></span><span class="f">is_deleted</span><span class="n">true when TimeCamp deletes the entry</span></li>
+          <li><span></span><span class="f">needs_review</span><span class="n">true if a key field arrived empty</span></li>
+          <li><span></span><span class="f">last_event</span><span class="n">created / updated / deleted</span></li>
+          <li><span></span><span class="f">created_at</span><span class="n">when the entry was made in TimeCamp</span></li>
+          <li><span></span><span class="f">updated_at</span><span class="n">last edit in TimeCamp</span></li>
+          <li><span></span><span class="f">received_at</span><span class="n">when receiver got the webhook</span></li>
+        </ul>
+      </section>
+
+      <div class="legend" id="lg">
+    <h2>Key</h2>
+    <span class="li"><span class="k pk" style="width:28px">PK</span>Primary key</span>
+    <span class="li"><span class="k fk" style="width:28px">FK</span>Foreign key</span>
+    <span class="li"><span class="card">1</span><span class="card">M</span>One / Many</span>
+    <span class="li"><span class="sw" style="--c:var(--sf)"></span>Placement → Firestore</span>
+    <span class="li"><span class="sw" style="--c:var(--ts)"></span>Placement → Timesheets</span>
+    <span class="li"><span class="sw" style="--c:var(--pu)"></span>Placement → Punches</span>
+    <span class="li"><span class="sw" style="--c:var(--tc)"></span>Timesheets → TimeCamp</span>
+    <span class="li"><span class="sw" style="--c:var(--fs)"></span>TimeCamp + Punches → Firestore</span>
+  </div>
+
+      <section class="t wide" id="fs" style="--c:var(--fs)">
+        <div class="t-head"><span class="t-name">Firestore</span><span class="t-role">Unified table</span></div>
+        <ul>
+          <li class="pkrow"><span class="k pk">PK</span><span class="f">unified_record_id</span><span class="n"></span></li>
+          <li><span class="k fk">FK</span><span class="f">contact_id</span><span class="n"></span></li>
+          <li><span class="k fk">FK</span><span class="f">placement_id</span><span class="n"></span></li>
+          <li><span></span><span class="f">contact_name</span><span class="n"></span></li>
+          <li><span></span><span class="f">mailing_address</span><span class="n">from Salesforce Contact</span></li>
+          <li><span></span><span class="f">placement_name</span><span class="n"></span></li>
+          <li><span></span><span class="f">work_date</span><span class="n"></span></li>
+          <li><span></span><span class="f">duration_seconds</span><span class="n">from timesheets / TimeCamp</span></li>
+          <li><span></span><span class="f">clock_duration_seconds</span><span class="n">time clock duration</span></li>
+          <li><span></span><span class="f">lunch_punch_duration_seconds</span><span class="n">lunch punch duration</span></li>
+          <li><span></span><span class="f">overtime_seconds</span><span class="n">paid at 1.5x (time and a half), calculated in Firestore</span></li>
+          <li><span></span><span class="f">hours</span><span class="n"></span></li>
+          <li><span></span><span class="f">source_type</span><span class="n">TIMECAMP / CLOCK_IN / LUNCH_OUT / LUNCH_IN / CLOCK_OUT</span></li>
+          <li><span></span><span class="f">source_id</span><span class="n">timecamp_entry_id or punch_id</span></li>
+          <li><span></span><span class="f">notes</span><span class="n"></span></li>
+          <li><span></span><span class="f">category</span><span class="n">Hourly / PTO / Sick / Overage / Expense</span></li>
+          <li><span></span><span class="f">status</span><span class="n">Not submitted / Submitted / Rejected / N/A</span></li>
+          <li><span></span><span class="f">created_at</span><span class="n"></span></li>
+          <li><span></span><span class="f">updated_at</span><span class="n"></span></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const fit=document.getElementById('fit'),sheet=document.getElementById('sheet'),svg=document.getElementById('wires'),NS='http://www.w3.org/2000/svg';
+  let k=1;
+  function scale(){
+    sheet.style.transform='none';
+    const W=sheet.offsetWidth,H=sheet.offsetHeight;
+    const availH=window.innerHeight-fit.getBoundingClientRect().top-window.scrollY-20;
+    const kw=Math.min(1,fit.clientWidth/W);k=Math.max(kw*0.85,Math.min(kw,Math.max(availH,320)/H));
+    sheet.style.transform='scale('+k+')';
+    fit.style.height=(H*k)+'px';
+  }
+  const box=id=>{const r=document.getElementById(id).getBoundingClientRect(),s=sheet.getBoundingClientRect();return{l:(r.left-s.left)/k,t:(r.top-s.top)/k,w:r.width/k,h:r.height/k,b:(r.bottom-s.top)/k}};
+  const el=(n,a,parent)=>{const e=document.createElementNS(NS,n);for(const x in a)e.setAttribute(x,a[x]);(parent||svg).appendChild(e);return e};
+  function label(t,x,y){if(!t)return;const e=el('text',{x,y,'font-family':'JetBrains Mono, monospace','font-size':12,'font-weight':600});e.style.fill='var(--muted)';e.textContent=t}
+  function wire(v,pts,a,b){
+    el('path',{d:'M'+pts.map(p=>p.join(' ')).join(' L'),fill:'none','stroke-width':1.6,'stroke-linejoin':'round','marker-end':'url(#m'+v+')'}).style.stroke='var(--'+v+')';
+    const s0=pts[0],s1=pts.at(-1);label(a,s0[0]+6,s0[1]+12);label(b,s1[0]+8,s1[1]-10);
+  }
+  function draw(){
+    scale();svg.innerHTML='';
+    const defs=el('defs',{});
+    ['sf','ts','pu','tc','fs'].forEach(v=>{const m=el('marker',{id:'m'+v,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},defs);el('path',{d:'M0 0L10 5L0 10z'},m).style.fill='var(--'+v+')'});
+    const sf=box('sf'),ts=box('ts'),pu=box('pu'),tc=box('tc'),fs=box('fs');
+    const midA=(sf.b+ts.t)/2;
+    wire('ts',[[sf.l+sf.w*.25,sf.b],[sf.l+sf.w*.25,midA],[ts.l+ts.w/2,midA],[ts.l+ts.w/2,ts.t-2]],'1','M');
+    wire('pu',[[sf.l+sf.w*.75,sf.b],[sf.l+sf.w*.75,midA],[pu.l+pu.w/2,midA],[pu.l+pu.w/2,pu.t-2]],'1','M');
+    const y=ts.t+60;
+    wire('tc',[[ts.l+ts.w,y],[tc.l-2,y]],'1','');label('M',tc.l-18,y-8);
+    const midB=(Math.max(tc.b,pu.b,ts.b)+fs.t)/2;
+    wire('fs',[[tc.l+tc.w/2,tc.b],[tc.l+tc.w/2,midB],[fs.l+fs.w*.42,midB],[fs.l+fs.w*.42,fs.t-2]],'M','');
+    wire('fs',[[pu.l+pu.w/2,pu.b],[pu.l+pu.w/2,midB+12],[fs.l+fs.w*.82,midB+12],[fs.l+fs.w*.82,fs.t-2]],'M','');
+    const ox=fs.l+fs.w+28,sy=sf.b-24,ey=fs.t+18;
+    wire('sf',[[sf.l+sf.w,sy],[ox,sy],[ox,ey],[fs.l+fs.w+2,ey]],'1','');label('M',fs.l+fs.w+8,ey-8);
+  }
+  draw();
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+  window.addEventListener('resize',draw);
+})();
+</script>
+
+</body>
+</html>
